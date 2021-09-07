@@ -5,7 +5,7 @@
  * Plugin Name: Auto build CF7 Email
  * Plugin URI:  https://github.com/locky42/autobuild-cf7-email
  * Description: Auto build email for Contact Form 7. The letter is automatically generated from the fields added to the form.
- * Version:     1.0.1
+ * Version:     1.0.2
  * Author:      webT
  * Author URI:  https://webt.com.ua
  * License:     GPLv2 or later
@@ -25,8 +25,12 @@
 
 add_filter( 'wpcf7_mail_components', 'filter_wpcf7_mail_components', 1, 3 );
 function filter_wpcf7_mail_components($components, $wpcf7_get_current_contact_form, $instance) {
-	$start = strpos($components['body'], '<body>')+6;
-	$clearContent = strip_tags(substr($components['body'], $start, strpos($components['body'], '</body>') - $start));
+	$start = strpos($components['body'], '<body>');
+	$clearContent = $components['body'];
+	if($start) {
+		$start = $start + 6;
+		$clearContent = strip_tags(substr($components['body'], $start, strpos($components['body'], '</body>') - $start));
+	}
 	if(trim($clearContent) === '[default]') {
 		$components['body'] = '';
 		$rm_underscore = apply_filters('cfdb7_remove_underscore_data', true);
