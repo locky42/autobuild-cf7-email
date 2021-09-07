@@ -5,7 +5,7 @@
  * Plugin Name: Auto build CF7 Email
  * Plugin URI:  https://github.com/locky42/autobuild-cf7-email
  * Description: Auto build email for Contact Form 7. The letter is automatically generated from the fields added to the form.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      webT
  * Author URI:  https://webt.com.ua
  * License:     GPLv2 or later
@@ -23,9 +23,11 @@
  */
 
 
-add_filter( 'wpcf7_mail_components', 'filter_wpcf7_mail_components', 0, 3 );
+add_filter( 'wpcf7_mail_components', 'filter_wpcf7_mail_components', 1, 3 );
 function filter_wpcf7_mail_components($components, $wpcf7_get_current_contact_form, $instance) {
-	if(trim($components['body']) === '[default]') {
+	$start = strpos($components['body'], '<body>')+6;
+	$clearContent = strip_tags(substr($components['body'], $start, strpos($components['body'], '</body>') - $start));
+	if(trim($clearContent) === '[default]') {
 		$components['body'] = '';
 		$rm_underscore = apply_filters('cfdb7_remove_underscore_data', true);
 		$components['subject'] = str_replace('[your-subject]', $wpcf7_get_current_contact_form->title, $components['subject']);
@@ -54,7 +56,7 @@ function filter_wpcf7_mail_components($components, $wpcf7_get_current_contact_fo
 	return $components;
 }
 
-add_filter( 'wpcf7_default_template',  'wpcf7_default_template_custom', 1, 2);
+add_filter( 'wpcf7_default_template',  'wpcf7_default_template_custom', 1000, 2);
 function wpcf7_default_template_custom($template, $type) {
 	if($type == 'mail' || $type == 'mail_2') {
 		$template['body'] = '[default]';
